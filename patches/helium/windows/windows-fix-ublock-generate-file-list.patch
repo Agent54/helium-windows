@@ -1,0 +1,31 @@
+diff --git a/third_party/ublock/generate_file_list.py b/third_party/ublock/generate_file_list.py
+--- a/third_party/ublock/generate_file_list.py
++++ b/third_party/ublock/generate_file_list.py
+@@ -1,15 +1,21 @@
+ import json
+-from sys import argv
++import os
+ from pathlib import Path
++from sys import argv
+ 
+-ublock_src = argv[1]
++ublock_src_str = argv[1]
++ublock_src = Path(ublock_src_str)
+ out_file = argv[2]
+ 
++files = [
++  (Path(root) / filename).relative_to(ublock_src).as_posix()
++  for root, _, filenames in os.walk(ublock_src)
++  for filename in filenames
++]
++
+ with open(out_file, 'w') as f:
+   f.write(json.dumps(
+-    { "base_dir": ublock_src,
+-      "files":   [ str((root / file).relative_to(ublock_src))
+-                   for root, _, files in Path(ublock_src).walk()
+-                   for file in files ]
++    { "base_dir": ublock_src_str,
++      "files":   files
+     }
+   ))
